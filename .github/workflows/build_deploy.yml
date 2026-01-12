@@ -22,17 +22,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Get changed files for merge commit
-        id: get_files
-        run: |
-          # マージコミットでも全ての変更を検出するため diff-tree を使用し、スペース区切りのリストに変換する
-          echo "files=$(git diff-tree --no-commit-id --name-only -r -m ${{ github.event.after }} | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          changed-files: ${{ steps.get_files.outputs.files }}
+          base: ${{ github.base_ref }}
           filters: |
             server:
               - 'server/**'

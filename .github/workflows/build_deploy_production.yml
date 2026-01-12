@@ -1,0 +1,13 @@
+name: Pull Request Release
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/build_deploy.yml
+    with:
+      environment: production
+      ref: ${{ github.ref }}

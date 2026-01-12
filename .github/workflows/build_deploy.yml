@@ -16,19 +16,32 @@ jobs:
     name: Check changes
     runs-on: ubuntu-slim
     outputs:
-      server: ${{ steps.filter.outputs.server }}
-      client: ${{ steps.filter.outputs.client }}
+      server: ${{ steps.detect.outputs.server }}
+      client: ${{ steps.detect.outputs.client }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          base: ${{ github.base_ref }}
-          filters: |
-            server:
-              - 'server/**'
-            client:
-              - 'client/**'
+      - name: Detect changes
+        id: detect
+        run: |
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r -m ${{ github.event.after }})
+          echo "Changed files:"
+          echo "${CHANGED_FILES}"
+
+          SERVER_PATTERN='^(server/|\.github/workflows/server_ci\.yml|\.github/workflows/common_ci_checks\.yml)'
+          CLIENT_PATTERN='^(client/|\.github/workflows/client_ci\.yml|\.github/workflows/common_ci_checks\.yml)'
+
+          server_changed='false'
+          if echo "${CHANGED_FILES}" | grep -q -E "${SERVER_PATTERN}"; then
+            server_changed='true'
+          fi
+
+          client_changed='false'
+          if echo "${CHANGED_FILES}" | grep -q -E "${CLIENT_PATTERN}"; then
+            client_changed='true'
+          fi
+
+          echo "server_changed=${server_changed}" >> $GITHUB_OUTPUT
+          echo "client_changed=${client_changed}" >> $GITHUB_OUTPUT

@@ -1,0 +1,32 @@
+name: build and deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+
+
+jobs:
+  changes-filter:
+    name: Check changes
+    runs-on: ubuntu-slim
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      client: ${{ steps.filter.outputs.client }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'server/**'
+            client:
+              - 'client/**'

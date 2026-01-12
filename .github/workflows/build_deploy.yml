@@ -43,5 +43,8 @@ jobs:
             client_changed='true'
           fi
 
+          echo "server_changed=${server_changed}"
+          echo "client_changed=${client_changed}"
+
           echo "server_changed=${server_changed}" >> $GITHUB_OUTPUT
           echo "client_changed=${client_changed}" >> $GITHUB_OUTPUT
